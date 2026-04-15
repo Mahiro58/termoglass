@@ -1,0 +1,20 @@
+.contact-grid{
+  display:grid; grid-template-columns:1fr; gap:16px; margin-top:8px;
+}
+@media (min-width:640px){
+  .contact-grid{grid-template-columns:1fr 1fr}
+}
+.contact-card{
+  background:var(--panel); border:1px solid #1e232a; border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:16px; display:grid; gap:10px;
+}
+.contact-card h2{margin:0 0 6px; font-size:1.1rem}
+.contact-card label{display:grid; gap:6px; font-size:.95rem}
+
+.map-wrap{margin-top:16px}
+.map-wrap h2{margin-bottom:10px}
+.map-embed{
+  overflow:hidden; border-radius:var(--radius); border:1px solid #1e232a; box-shadow:var(--shadow);
+}
+.map-embed iframe{width:100%; height:360px; border:0}
+@media (min-width:960px){ .map-embed iframe{height:420px} }

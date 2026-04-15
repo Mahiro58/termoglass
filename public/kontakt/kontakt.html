@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kontakt — TERMOGLASS</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="kontakt.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="/index.html">TERMOGLASS</a>
+  <nav class="main-nav" aria-label="Główna nawigacja">
+    <a href="/index.html">Strona Główna</a>
+    <a href="/o-nas/o-nas.html">O Nas</a>
+    <a href="/kontakt/kontakt.html" aria-current="page">Kontakt</a>
+    <a id="adminLink" href="/logowanie/login.html"> Panel</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h1>Kontakt</h1>
+
+  <section class="contact-grid">
+    <div class="contact-card">
+      <h2>Dane firmy</h2>
+      <p><strong>TERMOGLASS</strong><br>
+         ul. Przykładowa 12, 00-001 Warszawa<br>
+         NIP: 000-000-00-00</p>
+      <p>Tel: <a href="tel:+48123456789">+48 123 456 789</a><br>
+         E-mail: <a href="mailto:kontakt@wykoncz.to"></a></p>
+      <p>Godziny: pon–pt 8:00–18:00, sob 9:00–14:00</p>
+    </div>
+
+    <form class="contact-card" action="#" method="post" onsubmit="alert('Dziękujemy! Skontaktujemy się wkrótce.'); return false;">
+      <h2>Napisz do nas</h2>
+      <label>Imię i nazwisko
+        <input type="text" name="name" required>
+      </label>
+      <label>E-mail
+        <input type="email" name="email" required>
+      </label>
+      <label>Wiadomość
+        <textarea name="message" rows="5" required></textarea>
+      </label>
+      <button type="submit" class="btn">Wyślij</button>
+    </form>
+  </section>
+
+  <section class="map-wrap" aria-label="Mapa dojazdu">
+    <h2>Dojazd</h2>
+    <div class="map-embed">
+      <iframe
+        title="Mapa dojazdu — Wykończ.to"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen
+        src="https://www.google.com/maps?q=Warszawa%20Polska&output=embed">
+      </iframe>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> TERMOGLASS</p>
+</footer>
+<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+<script>src="/app.js"</script>
+</body>
+</html>

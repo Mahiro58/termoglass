@@ -1,0 +1,29 @@
+/* Wymaga base.css */
+/* Pola formularza: login, hasło, zmiana hasła */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #27303a;
+  background: #0e1318;
+  color: var(--ink);
+  outline: none;
+  font-size: 1rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  box-shadow: var(--ring);
+  border-color: #2b3947;
+}
+
+/* lekki odstęp pod polami */
+.auth-row { gap: 10px; }
+#loginBtn { margin-top: 12px; }   /* przycisk ciut niżej */

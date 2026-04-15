@@ -1,0 +1,153 @@
+/* Container bliżej lewej krawędzi, jak chciałeś */
+.container{max-width:none; margin:0; padding:24px 24px 24px 16px}
+
+/* Układ: sidebar lewo (sticky) + treść */
+.layout{display:grid; grid-template-columns:1fr; gap:20px}
+@media (min-width:960px){
+  .layout{grid-template-columns:300px 1fr; align-items:start}
+  .sidebar{position:sticky; top:72px; max-height:calc(100vh - 100px); overflow:auto}
+}
+.sidebar{
+  background:var(--panel); border:1px solid #1e232a; border-radius:var(--radius);
+  box-shadow:var(--shadow); padding:14px;
+}
+.sidebar-title{margin:0 0 8px; font-size:1rem; color:#fff}
+.control-group{display:grid; gap:8px; margin-bottom:12px}
+.control-label{color:var(--muted); font-size:.9rem}
+
+/* Chipy pionowo */
+.chipset.vertical{display:grid; grid-template-columns:1fr; gap:8px}
+.chip{
+  display:flex; align-items:center; gap:8px; width:100%;
+  background:#0e1318; border:1px solid #27303a; padding:10px 12px; border-radius:12px; cursor:pointer;
+}
+.chip input{accent-color:var(--accent)}
+
+/* Masonry dla kart (nie rozpycha innych przy otwieraniu opisu) */
+.grid{column-count:1; column-gap:24px; margin-top:12px}
+@media (min-width:640px){ .grid{column-count:3} }
+@media (min-width:960px){ .grid{column-count:4} }
+@media (min-width:1280px){ .grid{column-count:6} }
+
+/* Karty produktów */
+.card{
+  display:inline-block; width:100%; margin:0 0 24px; break-inside:avoid;
+  background:var(--panel); border:1px solid #1e232a; border-radius:var(--radius);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.card img{width:100%; height:220px; object-fit:cover; background:#0b0d10}
+@media (min-width:640px){ .card img{height:200px} }
+@media (min-width:960px){ .card img{height:180px} }
+@media (min-width:1280px){ .card img{height:170px} }
+
+.card-body{padding:16px; display:grid; gap:10px}
+.card-title{margin:0; font-size:1.05rem}
+.price{margin:0; color:#fff}
+.rating{margin:0; color:var(--accent-2); font-weight:600}
+.badge{
+  display:inline-block; background:#10161c; border:1px solid #27303a; color:var(--muted);
+  padding:6px 10px; border-radius:999px; font-size:.85rem
+}
+
+/* Rozwijany opis */
+details{background:#0e1318; border:1px solid #27303a; border-radius:12px; padding:8px 12px; margin-top:4px}
+summary{cursor:pointer; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--muted)}
+details[open] summary::after{content:"–"}
+
+
+/* --- Równe karty w siatce na stronie głównej --- */
+/* Równe karty */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap:20px;
+  align-items: start; 
+}
+.card{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  border:1px solid #1e232a;
+  align-self: start;
+  border-radius:16px;
+  background:var(--panel);
+  box-shadow:var(--shadow);
+}
+.card img{
+  width:100%;
+  aspect-ratio:1/1;         /* kwadrat */
+  object-fit:cover;
+}
+.card-body{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:16px;
+}
+
+/* 1) Gdy cena ukryta – zachowaj tę samą wysokość wiersza ceny */
+.card .price{ min-height:24px; margin:0; }
+
+.desc-panel summary{
+  cursor:pointer;
+  list-style:none;
+  flex:0 0 auto;
+}
+.desc-panel summary::-webkit-details-marker{ display:none }
+.desc-panel summary::after{ content:"+"; float:right; color:var(--muted) }
+.desc-panel[open] summary::after{ content:"–" }
+
+/* kosmetyka badge */
+.badge{ align-self:flex-start }
+
+/* --- Hero slider --- */
+.hero { margin: 12px 0 20px; position: static; }  /* na wszelki wypadek */
+
+.slider{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;   /* niższy baner */
+  max-height: auto;    /* twardy limit, żeby nie „połknął” ekranu */
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #1e232a;
+  background: #0b0d10;
+  box-shadow: var(--shadow);
+}
+
+/* slajd nie powinien blokować interakcji poza linkiem */
+.slide{ position:absolute; inset:0; opacity:0; transition:opacity .5s ease; pointer-events:none; }
+.slide.active{ opacity:1; }
+.slide a{ display:block; width:100%; height:100%; pointer-events:auto; } /* linki działają */
+
+.slide img {
+  width: 100%; height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+.slider .nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: rgba(0,0,0,.35);
+  border: 1px solid #27303a;
+  color: #fff; font-size: 22px; font-weight: 700;
+  width: 40px; height: 40px; border-radius: 20px;
+  cursor: pointer;
+}
+.slider .nav:hover { background: rgba(0,0,0,.5); }
+.slider .prev { left: 10px; }
+.slider .next { right: 10px; }
+
+.dots {
+  position: absolute; left: 0; right: 0; bottom: 10px;
+  display: flex; justify-content: center; gap: 8px;
+}
+.dots button {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid #27303a; background: rgba(255,255,255,.4);
+  cursor: pointer;
+}
+.dots button.active { background: #fff; }

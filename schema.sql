@@ -1,0 +1,25 @@
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  created_at INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  category_id INTEGER,
+  price REAL DEFAULT 0,
+  show_price INTEGER DEFAULT 1,
+  description TEXT,
+  image_url TEXT,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY(category_id) REFERENCES categories(id) ON DELETE SET NULL
+);

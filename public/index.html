@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TERMOGLASS — Strona główna</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="index.html">TERMOGLASS</a>
+  <nav class="main-nav">
+    <a href="index.html" aria-current="page">Strona główna</a>
+    <a href="o-nas/o-nas.html">O nas</a>
+    <a href="kontakt/kontakt.html">Kontakt</a>
+    <a id="adminLink" href="login.html">Admin</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="slider" id="bannerSlider">
+    <!-- slajdy doda JS -->
+    <button class="nav prev" aria-label="Poprzedni">&#10094;</button>
+    <button class="nav next" aria-label="Następny">&#10095;</button>
+    <div class="dots" id="bannerDots"></div>
+  </div>
+</section>
+
+
+<main class="container layout">
+  <aside class="sidebar" aria-label="Filtry i sortowanie">
+    <h2 class="sidebar-title">Filtry</h2>
+    <div class="control-group">
+      <label for="search">Szukaj</label>
+      <input id="search" type="search" placeholder="np. wkrętarka, farba…">
+    </div>
+    <div class="control-group">
+      <span class="control-label">Kategorie</span>
+      <div class="chipset vertical" id="category-filters"></div>
+    </div>
+    <div class="control-group">
+      <label for="sort">Sortuj</label>
+      <select id="sort">
+        <option value="created_desc">Najnowsze</option>
+        <option value="name_asc">Nazwa A–Z</option>
+        <option value="name_desc">Nazwa Z–A</option>
+        <option value="price_asc">Cena rosnąco</option>
+        <option value="price_desc">Cena malejąco</option>
+      </select>
+
+    </div>
+  </aside>
+
+  <section class="content">
+    <h1>Asortyment</h1>
+    <section id="grid" class="grid" aria-live="polite" aria-busy="false"></section>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> TERMOGLASS</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

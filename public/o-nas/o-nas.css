@@ -1,0 +1,12 @@
+.about{
+  display:grid; gap:10px;
+  background:var(--panel); padding:16px; border-radius:var(--radius);
+  border:1px solid #1e232a; box-shadow:var(--shadow);
+}
+.checklist{padding-left:18px; margin:6px 0}
+.checklist li{margin:6px 0}
+.highlight{
+  margin-top:16px; background:linear-gradient(180deg,#12161b,#0f141a);
+  border:1px solid #1e232a; border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:16px;
+}

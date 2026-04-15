@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logowanie — TERMOGLASS</title>
+  <link rel="stylesheet" href="base.css" />
+  <link rel="stylesheet" href="auth.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="/index.html">TERMOGLASS</a>
+  <nav class="main-nav" aria-label="Główna nawigacja">
+    <a href="/index.html">Strona główna</a>
+    <a href="/o-nas/o-nas.html">O Nas</a>
+    <a href="/kontakt/kontakt.html">Kontakt</a>
+    <a href="login.html">Panel</a>
+  </nav>
+</header>
+
+<main class="container auth-wrap">
+  <section class="auth-card" aria-label="Panel logowania">
+    <h1>Zaloguj się</h1>
+
+    <div class="auth-row">
+      <label>E-mail
+        <input type="email" id="email" placeholder="admin@local" required>
+      </label>
+      <label>Hasło
+        <input type="password" id="password" placeholder="••••••••" required>
+      </label>
+      <button class="btn" id="loginBtn">Zaloguj</button>
+    </div>
+
+    <div class="auth-footer">
+      <span>Domyślne: <code>admin@local / admin123</code></span>
+      <a href="#" id="seedData">Zasiej przykładowe dane</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> TERMOGLASS</p>
+</footer>
+
+<script>
+  // Rok w stopce
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Inicjalizacja domyślnego użytkownika, jeśli brak
+  const USER_KEY = 'wykoncz_user';
+  if (!localStorage.getItem(USER_KEY)) {
+    const defaultUser = { email: 'admin@local', password: 'admin123', createdAt: Date.now() };
+    localStorage.setItem(USER_KEY, JSON.stringify(defaultUser));
+  }
+
+  // Przycisk "Zasiej przykładowe dane" (kategorie + parę produktów)
+  document.getElementById('seedData').addEventListener('click', (e)=>{
+    e.preventDefault();
+    const catKey = 'wykoncz_categories';
+    const prodKey = 'wykoncz_products';
+
+    const cats = ['narzędzia ręczne','elektronarzędzia','farby & wykończenia','podłogi & płytki','oświetlenie','akcesoria montażowe'];
+    localStorage.setItem(catKey, JSON.stringify(cats));
+
+    const sample = [
+      {id:crypto.randomUUID(), name:'Młotek stolarski 16 oz', category:'narzędzia ręczne', price:49.9, showPrice:true, rating:4.6, desc:'Trzonek z włókna szklanego.', image:''},
+      {id:crypto.randomUUID(), name:'Wkrętarka 18V Pro', category:'elektronarzędzia', price:399, showPrice:true, rating:4.8, desc:'2 biegi, 45 Nm.', image:''},
+      {id:crypto.randomUUID(), name:'Farba lateksowa Biała 10L', category:'farby & wykończenia', price:129.99, showPrice:true, rating:4.5, desc:'Wysoka odporność na zmywanie.', image:''}
+    ];
+    localStorage.setItem(prodKey, JSON.stringify(sample));
+    alert('Dodano przykładowe kategorie i produkty.');
+  });
+
+  // Logowanie (prosty check w localStorage)
+  document.getElementById('loginBtn').addEventListener('click', ()=>{
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    const saved = JSON.parse(localStorage.getItem(USER_KEY) || '{}');
+    if (email === saved.email && pass === saved.password) {
+      // pseudo-token w sessionStorage
+      sessionStorage.setItem('wykoncz_token', JSON.stringify({ email, at: Date.now() }));
+      window.location.href = 'admin.html';
+    } else {
+      alert('Błędny e-mail lub hasło.');
+    }
+  });
+</script>
+</body>
+</html>

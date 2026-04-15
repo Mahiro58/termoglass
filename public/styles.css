@@ -1,0 +1,336 @@
+:root{
+  --bg: #0b0d10;
+  --panel: #12161b;
+  --ink: #e8edf2;
+  --muted: #9fb0c0;
+  --accent: #4aa8ff;
+  --accent-2: #7ce2b1;
+  --ring: 0 0 0 3px rgba(74,168,255,.35);
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,Helvetica,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,#0b0d10 0%, #0f1216 100%);
+}
+
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+
+.container{max-width:1100px;margin:0 auto;padding:24px}
+
+/* Header */
+.site-header{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:16px; padding:14px 24px; background:#0b0d10e6; backdrop-filter:saturate(1.2) blur(8px);
+  border-bottom:1px solid #1e232a;
+}
+.logo{font-weight:800; letter-spacing:.3px; color:#fff; font-size:1.15rem}
+.main-nav a{padding:8px 12px; border-radius:999px}
+.main-nav a[aria-current="page"]{background: #1b2129; color:#fff}
+
+/* Footer */
+.site-footer{border-top:1px solid #1e232a; padding:20px 24px; text-align:center; color:var(--muted); background:#0b0d10}
+
+/* Typo */
+h1{font-size:2rem; margin:8px 0 18px}
+h2{font-size:1.25rem; margin:0 0 10px}
+p{color:#d6dee6; line-height:1.6}
+
+/* --- Layout z lewym, przyklejonym sidebarem --- */
+.layout{
+  display:grid;
+  grid-template-columns: 1fr;      /* mobile: jedna kolumna */
+  gap:20px;
+}
+
+/* Desktop/tablet: dwie kolumny — sidebar po lewej */
+@media (min-width: 960px){
+  .layout{
+    grid-template-columns: 300px 1fr; /* szerokość panelu lewego */
+    align-items:start;
+  }
+}
+
+/* Sidebar (panel filtrów) */
+.sidebar{
+  background: var(--panel);
+  border:1px solid #1e232a;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  position: relative; /* na mobile */
+}
+
+@media (min-width: 960px){
+  .sidebar{
+    position: sticky;
+    top: 76px; /* dopasuj jeśli zmienisz wysokość headera */
+    height: fit-content;
+    max-height: calc(100vh - 100px); /* nie wychodzi poza ekran */
+    overflow: auto; /* przewijanie zawartości sidebaru gdy długi */
+  }
+}
+
+.sidebar-title{
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* Sekcje kontrolne wewnątrz sidebaru */
+.control-group{
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.control-label{color:var(--muted); font-size:.9rem}
+
+input[type="search"], select, input[type="text"], input[type="email"], textarea{
+  width:100%; padding:12px 14px; border-radius:12px; border:1px solid #27303a; background:#0e1318; color:var(--ink);
+  outline:none;
+}
+input:focus, select:focus, textarea:focus{box-shadow:var(--ring); border-color:#2b3947}
+
+/* --- Chipy w jednej kolumnie --- */
+.chipset.vertical{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.chip{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  background:#0e1318;
+  border:1px solid #27303a;
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+  user-select:none;
+}
+.chip input{ accent-color: var(--accent); }
+
+/* Treść po prawej */
+/* .content{} */
+
+/* Siatka produktów */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(12,1fr);
+  gap:16px;
+}
+.card{
+  grid-column: span 12;
+  background:var(--panel);
+  border:1px solid #1e232a;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+}
+.card img{width:100%; height:220px; object-fit:cover; background:#0b0d10}
+.card-body{padding:14px; display:grid; gap:8px}
+.card-title{margin:0; font-size:1.05rem}
+.price{margin:0; color:#fff}
+.rating{margin:0; color:var(--accent-2); font-weight:600}
+.badge{
+  display:inline-block; width:max-content;
+  background:#10161c; border:1px solid #27303a; color:var(--muted);
+  padding:6px 10px; border-radius:999px; font-size:.85rem
+}
+details{background:#0e1318; border:1px solid #27303a; border-radius:12px; padding:8px 12px}
+summary{cursor:pointer; list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+"; float:right; color:var(--muted)}
+details[open] summary::after{content:"–"}
+
+/* RWD dla kart */
+/* RWD dla kart */
+@media (min-width:640px){
+  .grid .card{grid-column: span 6}   /* 3 wiersze na tablecie */
+  .card img{height:200px}
+}
+@media (min-width:960px){
+  .grid .card{grid-column: span 4}   /* 4 wiersze na desktopie */
+  .card img{height:180px}
+}
+@media (min-width:1280px){
+  .grid .card{grid-column: span 3}   /* 6 wierszy na dużym ekranie */
+  .card img{height:160px}
+}
+
+
+/* === Kontakt: karty, formularz, mapa === */
+.contact-grid{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:16px;
+  margin-top: 8px;
+}
+
+@media (min-width:640px){
+  .contact-grid{
+    grid-template-columns: 1fr 1fr; /* dane firmy + formularz obok siebie */
+  }
+}
+
+.contact-card{
+  background: var(--panel);
+  border: 1px solid #1e232a;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: grid;
+  gap: 10px;
+}
+
+.contact-card h2{
+  margin: 0 0 6px 0;
+  font-size: 1.1rem;
+}
+
+.contact-card label{
+  display: grid;
+  gap: 6px;
+  font-size: .95rem;
+}
+
+.contact-card input,
+.contact-card textarea{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #27303a;
+  background:#0e1318;
+  color:var(--ink);
+  outline:none;
+}
+
+.contact-card input:focus,
+.contact-card textarea:focus{
+  box-shadow: var(--ring);
+  border-color:#2b3947;
+}
+
+.btn{
+  background: var(--accent);
+  color:#031625;
+  border:none;
+  padding:10px 14px;
+  border-radius:12px;
+  font-weight:700;
+  cursor:pointer;
+}
+.btn:hover{ filter:brightness(1.05) }
+
+/* Mapa dojazdu */
+.map-wrap{ margin-top: 16px; }
+.map-wrap h2{ margin-bottom: 10px; }
+
+.map-embed{
+  overflow:hidden;
+  border-radius: var(--radius);
+  border:1px solid #1e232a;
+  box-shadow: var(--shadow);
+}
+.map-embed iframe{
+  width:100%;
+  height: 360px;
+  border:0;
+}
+
+@media (min-width:960px){
+  .map-embed iframe{ height: 420px; }
+}
+
+/* === 1) Container bliżej lewej krawędzi === */
+.container{
+  /* zamiast max-width + auto-centrowania robimy pełną szerokość i lekki padding z lewej */
+  max-width: none;
+  margin: 0;
+  padding: 24px 24px 24px 16px;
+}
+
+/* Zostawiamy layout 2-kolumnowy jak był, sidebar zostaje sticky */
+@media (min-width: 960px){
+  .layout{
+    grid-template-columns: 300px 1fr;
+    align-items:start;
+  }
+}
+
+/* Możesz też minimalnie zmniejszyć padding headera, żeby „optycznie” wszystko było bliżej lewej */
+.site-header{ padding-left: 16px; padding-right: 24px; }
+
+/* === 2) Większe odstępy między kartami + 3) Masonry (kolumny) zamiast równej siatki === */
+/* ZAMIANA poprzedniej definicji .grid i RWD na multi-column masonry */
+.grid{
+  column-count: 1;        /* tel.: 1 kolumna */
+  column-gap: 24px;       /* większa przerwa między kolumnami */
+  margin-top: 12px;
+}
+
+/* Karty muszą być „blokami” w kolumnach i nie łamać się w środku */
+.card{
+  display: inline-block;  /* ważne dla kolumn */
+  width: 100%;
+  margin: 0 0 24px;       /* odstęp pionowy między kartami (większy, „luźniej”) */
+  break-inside: avoid;    /* nie dziel karty między kolumny */
+}
+
+/* RWD: zwiększamy liczbę kolumn wraz z szerokością ekranu */
+@media (min-width: 640px){   /* tablet */
+  .grid{ column-count: 3; }
+  .card img{ height: 200px; }
+}
+@media (min-width: 960px){   /* desktop */
+  .grid{ column-count: 4; }
+  .card img{ height: 180px; }
+}
+@media (min-width: 1280px){  /* duże ekrany */
+  .grid{ column-count: 6; }
+  .card img{ height: 170px; }
+}
+
+/* Dodatkowe „oddechy” w kartach */
+.card-body{ padding: 16px; gap: 10px; }
+details{ margin-top: 4px; }
+
+/* Opcjonalnie: odsuń trochę treść od krawędzi prawej kolumny */
+.content{ padding-right: 8px; }
+
+/* Sidebar zostaje jak był, ale dla pewności dopasuj top gdy header jest wyższy */
+@media (min-width: 960px){
+  .sidebar{ top: 72px; }
+}
+
+/* Nawigacja — lekko powiększona i bardziej widoczna */
+.main-nav{
+  display:flex;
+  gap:16px;                /* większy odstęp między linkami */
+}
+
+.main-nav a{
+  font-size: 1.05rem;      /* trochę większa czcionka */
+  font-weight:600;
+  padding:12px 18px;       /* więcej przestrzeni kliknięcia */
+  border-radius:20px;
+  color:#fff;
+  transition: background .2s ease;
+}
+
+.main-nav a:hover{
+  background: rgba(255,255,255,0.1);  /* lekkie podświetlenie tła */
+}
+
+.main-nav a[aria-current="page"]{
+  background: rgba(255,255,255,0.15); /* aktualna strona wyraźniejsza */
+}

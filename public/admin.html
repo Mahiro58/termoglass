@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel administratora — TERMOGLASS</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="index.html">TERMOGLASS</a>
+  <nav class="main-nav">
+    <a href="index.html">Strona główna</a>
+    <a href="o-nas/o-nas.html">O nas</a>
+    <a href="kontakt/kontakt.html">Kontakt</a>
+    <a href="#" id="logoutBtn" title="Wyloguj">Wyloguj</a>
+  </nav>
+</header>
+
+<main class="container admin-layout">
+  <aside class="admin-nav">
+    <h2>Administrator</h2>
+    <div class="stack">
+      <a href="#produkty" class="active">Produkty</a>
+      <a href="#kategorie">Kategorie</a>
+      <a href="#panel-banners">Banery</a>
+      <a href="#ustawienia">Ustawienia</a>
+    </div>
+  </aside>
+
+  <section class="admin-content">
+    <div id="produkty" class="panel">
+      <div class="section-toolbar">
+        <h3>Produkty</h3>
+        <div class="inline">
+          <select id="sortProducts" title="Sortuj">
+            <option value="created-desc">Najnowsze</option>
+            <option value="created-asc">Najstarsze</option>
+            <option value="name-asc">Nazwa A–Z</option>
+            <option value="name-desc">Nazwa Z–A</option>
+            <option value="price-asc">Cena: rosnąco</option>
+            <option value="price-desc">Cena: malejąco</option>
+            <option value="category-asc">Kategoria A–Z</option>
+          </select>
+          <input class="search" id="searchProducts" type="search" placeholder="Szukaj w produktach…">
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Nazwa
+            <input type="text" id="pName" placeholder="np. Wkrętarka 18V Pro" required>
+          </label>
+        </div>
+        <div class="form-row inline">
+          <label style="flex:1">Kategoria
+            <select id="pCategory"></select>
+          </label>
+          <label style="flex:1">Cena (PLN)
+            <input type="number" id="pPrice" placeholder="0.00" min="0" step="0.01">
+          </label>
+          <label class="inline"><input type="checkbox" id="pShowPrice" checked> Pokazuj cenę</label>
+        </div>
+        <div class="form-row">
+          <label>Opis
+            <textarea id="pDesc" rows="3" placeholder="Krótki opis produktu…"></textarea>
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Zdjęcie (jpg/png/webp)
+            <input type="file" id="pImage" accept="image/*">
+          </label>
+        </div>
+        <div class="form-row">
+          <button class="btn" id="addProductBtn">Dodaj produkt</button>
+        </div>
+      </div>
+
+      <hr style="border-color:#27303a;opacity:.5">
+      <div class="products" id="productsList"></div>
+    </div>
+
+    <div id="kategorie" class="panel">
+      <h3>Kategorie</h3>
+      <div class="form-grid">
+        <div class="inline">
+          <input type="text" id="catName" placeholder="np. elektronarzędzia">
+          <button class="btn" id="addCatBtn">Dodaj kategorię</button>
+        </div>
+      </div>
+      <div class="kat-list" id="catList"></div>
+    </div>
+
+    <section class="panel" id="panel-banners" style="display:none">
+  <h2>Banery (slider)</h2>
+
+  <div class="banner-form">
+    <label>Obraz (jpg/png/webp)
+      <input type="file" id="bImage" accept="image/*">
+    </label>
+    <label>Link (opcjonalny)
+      <input type="url" id="bLink" placeholder="https://...">
+    </label>
+    <label>Kolejność
+      <input type="number" id="bOrder" min="0" value="0">
+    </label>
+    <label class="inline">
+      <input type="checkbox" id="bActive" checked> Aktywny
+    </label>
+    <button class="btn" id="addBannerBtn">Dodaj baner</button>
+  </div>
+
+  <div class="banners" id="bannersList"></div>
+</section>
+
+
+    <div id="ustawienia" class="panel">
+      <h3>Ustawienia administratora</h3>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>E-mail administratora
+            <input type="email" id="admEmail" placeholder="admin@local">
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Nowe hasło
+            <input type="password" id="admPass" placeholder="pozostaw puste by nie zmieniać">
+          </label>
+        </div>
+        <div><button class="btn" id="saveAdmin">Zapisz</button></div>
+      </div>
+      <p class="muted" style="color:var(--muted)">Dane trzymane na serwerze (SQLite). Zdjęcia w /uploads.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> TERMOGLASS</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

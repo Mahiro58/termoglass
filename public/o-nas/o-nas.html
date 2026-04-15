@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>O nas — TERMOGLASS</title>
+  <link rel="stylesheet" href="base.css">
+  <link rel="stylesheet" href="o-nas.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="logo" href="/index.html">TERMOGLASS</a>
+  <nav class="main-nav" aria-label="Główna nawigacja">
+    <a href="/index.html">Strona Główna</a>
+    <a href="/o-nas/o-nas.html" aria-current="page">O Nas</a>
+    <a href="/kontakt/kontakt.html">Kontakt</a>
+    <a id="adminLink" href="/logowanie/login.html"> Panel</a>
+  </nav>
+</header>
+
+<main class="container">
+  <h1>O nas</h1>
+  <div class="about">
+    <p>Jesteśmy polskim sklepem z materiałami wykończeniowymi i narzędziami. Od lat pomagamy ekipom i majsterkowiczom kończyć prace <em>na gotowo</em> — solidnie i w terminie.</p>
+    <ul class="checklist">
+      <li>Starannie wyselekcjonowany asortyment</li>
+      <li>Doradztwo techniczne i wyceny</li>
+      <li>Odbiory osobiste i szybkie wysyłki</li>
+      <li>Program rabatowy dla firm</li>
+    </ul>
+  </div>
+
+  <section class="highlight">
+    <h2>Dlaczego my?</h2>
+    <p>Łączymy jakość, dostępność i rozsądne ceny. Współpracujemy z zaufanymi producentami oraz lokalnymi dostawcami.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <p>© <span id="year"></span> TERMOGLASS</p>
+</footer>
+<script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+<script>src="/app.js"</script>
+</body>
+</html>
