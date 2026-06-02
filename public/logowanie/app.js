@@ -1,13 +1,5 @@
-/* =========================================================
-   Wykończ.to — wspólny skrypt dla login.html i admin.html
-   Zawiera:
-   - Auth (localStorage + sessionStorage)
-   - Seed przykładowych danych
-   - Panel admina: kategorie + produkty (CRUD), sortowanie, wyszukiwanie
-   ========================================================= */
-
 (() => {
-  /* ---------- Helpers ---------- */
+  /* Helpers */
   const $  = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
@@ -34,13 +26,13 @@
     catch { return fallback; }
   };
 
-  /* ---------- Dane (get/set) ---------- */
+  /* Dane (get/set) */
   const getCats  = () => safeJSON(LS_KEYS.categories, []);
   const setCats  = (arr) => localStorage.setItem(LS_KEYS.categories, JSON.stringify(arr));
   const getProds = () => safeJSON(LS_KEYS.products, []);
   const setProds = (arr) => localStorage.setItem(LS_KEYS.products, JSON.stringify(arr));
 
-  /* ---------- Inicjały / domyślne ---------- */
+  /* Inicjały / domyślne */
   function ensureDefaults() {
     if (!localStorage.getItem(LS_KEYS.user)) {
       const defaultUser = { email: 'admin@local', password: 'admin123', createdAt: Date.now() };
@@ -54,7 +46,7 @@
     }
   }
 
-  /* ---------- Auth ---------- */
+  /* Auth */
   function requireAuthOrRedirect() {
     if (!sessionStorage.getItem(TOKEN_KEY)) {
       window.location.href = 'login.html';
@@ -66,9 +58,7 @@
     if (el) el.textContent = new Date().getFullYear();
   }
 
-  /* =========================================================
-     LOGIN PAGE
-     ========================================================= */
+  /*     LOGIN PAGE     */
   function initLoginPage() {
     ensureDefaults();
     setFooterYear();
@@ -113,9 +103,7 @@
     }
   }
 
-  /* =========================================================
-     ADMIN PAGE
-     ========================================================= */
+  /* ADMIN PAGE */
   let currentSort = 'created-desc';
 
   function migrateCreatedAt() {
@@ -224,11 +212,10 @@
     migrateCreatedAt();
     setFooterYear();
 
-    // Logout (po prostu czyści token i przechodzi do loginu)
+    // Logout 
     const logoutBtn = $('#logoutBtn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', (e) => {
-        // pozwól <a> normalnie przejść do login.html po wyczyszczeniu
         sessionStorage.removeItem(TOKEN_KEY);
       });
     }
@@ -255,7 +242,7 @@
     const panels = $$('.panel');
     panels.forEach((p, i) => p.style.display = i === 0 ? 'grid' : 'none');
 
-    /* ----- Produkty: dodawanie ----- */
+    /* Produkty: dodawanie */
     const addBtn = $('#addProductBtn');
     if (addBtn) {
       addBtn.addEventListener('click', async () => {
@@ -301,7 +288,7 @@
       });
     }
 
-    /* ----- Produkty: operacje na liście ----- */
+    /* Produkty: operacje na liście */
     const listBox = $('#productsList');
     if (listBox) {
       listBox.addEventListener('click', (e) => {
@@ -325,7 +312,7 @@
       });
     }
 
-    /* ----- Produkty: wyszukiwarka + sortowanie ----- */
+    /* Produkty: wyszukiwarka + sortowanie */
     const searchInput = $('#searchProducts');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -341,7 +328,7 @@
       });
     }
 
-    /* ----- Kategorie: dodawanie/usuwanie ----- */
+    /* Kategorie: dodawanie/usuwanie */
     const addCatBtn = $('#addCatBtn');
     if (addCatBtn) {
       addCatBtn.addEventListener('click', () => {
@@ -370,7 +357,7 @@
       });
     }
 
-    /* ----- Ustawienia admina ----- */
+    /* Ustawienia admina */
     (function initAdminSettings() {
       const u = safeJSON(LS_KEYS.user, {});
       if ($('#admEmail')) $('#admEmail').value = u.email || '';
@@ -394,9 +381,7 @@
     }
   }
 
-  /* =========================================================
-     Router inicjalizujący skrypt zależnie od strony
-     ========================================================= */
+  /* Router inicjalizujący skrypt zależnie od strony */
   function initRouter() {
     // login.html ma #loginBtn
     if (has('loginBtn')) {

@@ -27,7 +27,17 @@ p{color:#d6dee6; line-height:1.6}
   padding:14px 24px; background:#0b0d10e6; backdrop-filter:saturate(1.2) blur(8px);
   border-bottom:1px solid #1e232a;
 }
-.logo{font-weight:800; letter-spacing:.3px; color:#fff; font-size:1.15rem}
+.logo {
+  display: inline-block;
+  width: 800px;
+  height: 80px;
+  background: url("/public/termoglasslogo2.png") no-repeat center;
+  background-size: contain;
+  border-radius: 25px;
+  text-indent: -9999px;
+  overflow: hidden;
+}
+
 .main-nav{display:flex; gap:16px}
 .main-nav a{
   font-size:1.05rem; font-weight:600; padding:12px 18px;

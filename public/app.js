@@ -1,11 +1,10 @@
-/* TERMOGLASS — app.js: login + admin + home (API) */
 (() => {
   const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
   const has = id => !!document.getElementById(id);
   const setYear = () => { const y = $('#year'); if (y) y.textContent = new Date().getFullYear(); };
 
-  /* ============ NAV: Admin ↔ Panel (po zalogowaniu) ============ */
+  /* NAV: Admin ↔ Panel (po zalogowaniu) */
   async function updateNavAuth() {
     const link = document.getElementById('adminLink');
     if (!link) return;
@@ -40,11 +39,11 @@
         document.getElementById('logoutBtn')?.remove();
       }
     } catch {
-      // w razie błędu – zostaw domyślnie do loginu
+      // w razie błędu – domyślnie do loginu
     }
   }
 
-  /* ====================== LOGIN ====================== */
+  /* LOGIN */
   async function initLogin() {
     setYear();
     const btn = $('#loginBtn');
@@ -70,7 +69,7 @@
     });
   }
 
-  /* ====================== ADMIN ====================== */
+  /* ADMIN */
   let currentSort = 'created-desc';
 
   async function authGuard() {
@@ -225,7 +224,7 @@
       renderCatsList(upd); fillCategorySelect(upd);
     });
 
-    /* --------- Banery (slider) w panelu --------- */
+    /* Banery (slider) w panelu */
     async function loadBanners(){
       const res = await fetch('/api/admin/banners');
       return res.json();
@@ -372,7 +371,7 @@
     renderBanners();
   }
 
-  /* ====================== HOME (lista + slider) ====================== */
+  /* HOME (lista + slider) */
   async function initHome() {
     setYear();
 
@@ -383,7 +382,7 @@
       const res = await fetch('/api/banners');
       const banners = await res.json();
 
-      // usuń tylko poprzednie slajdy (nie przyciski i nie kropki!)
+      // usuń tylko poprzednie slajdy
       sliderEl.querySelectorAll('.slide').forEach(n => n.remove());
       if (dotsEl) dotsEl.innerHTML = '';
 
@@ -395,7 +394,6 @@
                <img src="${b.image_url}" alt="baner ${i+1}">
              </a>`
           : `<img src="${b.image_url}" alt="baner ${i+1}">`;
-        // wstaw przed strzałkami, żeby strzałki były zawsze na wierzchu
         const beforeNode = sliderEl.querySelector('.prev') || sliderEl.firstChild;
         sliderEl.insertBefore(s, beforeNode);
 
@@ -442,7 +440,7 @@
       if (banners.length > 1) start();
     }
 
-    // --- LISTA PRODUKTÓW ---
+    // LISTA PRODUKTÓW
     const grid = $('#grid'); if (!grid) return;
 
     const cats = await (await fetch('/api/categories')).json();
@@ -493,7 +491,7 @@
     loadAndRender();
   }
 
-  /* ====================== ROUTER ====================== */
+  /* ROUTER */
   function router() {
     updateNavAuth();                  // podmień link w nav wg sesji
 

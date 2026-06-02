@@ -29,12 +29,12 @@ p{color:#d6dee6; line-height:1.6}
 }
 .logo {
   display: inline-block;
-  width: 800px;         /* szerokość logo */
-  height: 80px;         /* wysokość logo */
-  background: url("termoglasslogo2.png") no-repeat center;
+  width: 800px;
+  height: 80px;
+  background: url("/public/termoglasslogo2.png") no-repeat center;
   background-size: contain;
   border-radius: 25px;
-  text-indent: -9999px; /* ukryj tekst "TERMOGLASS" */
+  text-indent: -9999px;
   overflow: hidden;
 }
 
