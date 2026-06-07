@@ -6,42 +6,35 @@
 
   /* NAV: Admin ↔ Panel (po zalogowaniu) */
   async function updateNavAuth() {
-    const link = document.getElementById('adminLink');
-    if (!link) return;
+  const link = document.getElementById('adminLink');
+  if (!link) return;
 
-    try {
-      const me = await fetch('/api/auth/me');
-      if (me.ok) {
-        // zalogowany → pokaż „Panel” i przycisk Wyloguj
-        link.href = '/public/logowanie/admin.html';
-        link.textContent = 'Panel';
+  const isLogged = !!sessionStorage.getItem('wykoncz_token');
 
-        if (!document.getElementById('logoutBtn')) {
-          const out = document.createElement('a');
-          out.id = 'logoutBtn';
-          out.href = '#';
-          out.textContent = 'Wyloguj';
-          link.parentElement.appendChild(out);
-          out.addEventListener('click', async (e)=>{
-            e.preventDefault();
-            await fetch('/api/auth/logout', { method:'POST' });
-            if (location.pathname.endsWith('/public/logowanie/admin.html')) {
-              window.location.href = '/public/index.html';
-            } else {
-              location.reload();
-            }
-          });
-        }
-      } else {
-        // niezalogowany
-        link.href = '/public/logowanie/login.html';
-        link.textContent = 'Panel';
-        document.getElementById('logoutBtn')?.remove();
-      }
-    } catch {
-      // w razie błędu – domyślnie do loginu
+  if (isLogged) {
+    link.href = 'logowanie/admin.html';
+    link.textContent = 'Panel';
+
+    if (!document.getElementById('logoutBtn')) {
+      const out = document.createElement('a');
+      out.id = 'logoutBtn';
+      out.href = '#';
+      out.textContent = 'Wyloguj';
+
+      link.parentElement.appendChild(out);
+
+      out.addEventListener('click', (e) => {
+        e.preventDefault();
+        sessionStorage.removeItem('wykoncz_token');
+        window.location.href = 'index.html';
+      });
     }
+  } else {
+    link.href = 'logowanie/login.html';
+    link.textContent = 'Panel';
+    document.getElementById('logoutBtn')?.remove();
   }
+}
 
   /* LOGIN */
   async function initLogin() {
