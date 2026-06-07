@@ -13,7 +13,7 @@
       const me = await fetch('/api/auth/me');
       if (me.ok) {
         // zalogowany → pokaż „Panel” i przycisk Wyloguj
-        link.href = 'admin.html';
+        link.href = '/public/logowanie/admin.html';
         link.textContent = 'Panel';
 
         if (!document.getElementById('logoutBtn')) {
@@ -25,8 +25,8 @@
           out.addEventListener('click', async (e)=>{
             e.preventDefault();
             await fetch('/api/auth/logout', { method:'POST' });
-            if (location.pathname.endsWith('admin.html')) {
-              window.location.href = 'index.html';
+            if (location.pathname.endsWith('/public/logowanie/admin.html')) {
+              window.location.href = '/public/index.html';
             } else {
               location.reload();
             }
@@ -34,8 +34,8 @@
         }
       } else {
         // niezalogowany
-        link.href = 'login.html';
-        link.textContent = 'Admin';
+        link.href = '/public/logowanie/login.html';
+        link.textContent = 'Panel';
         document.getElementById('logoutBtn')?.remove();
       }
     } catch {
