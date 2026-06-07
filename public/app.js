@@ -1,3 +1,43 @@
+function initMobileMenu() {
+  const btn = document.getElementById('menuToggle');
+  const nav = document.getElementById('mainNav') || document.querySelector('.main-nav');
+
+  if (!btn || !nav) return;
+
+  btn.addEventListener('click', () => {
+    nav.classList.toggle('open');
+    btn.textContent =
+      nav.classList.contains('open')
+        ? '✕'
+        : '☰';
+  });
+
+  nav.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      btn.textContent = '☰';
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    const clickedInside =
+      nav.contains(e.target) ||
+      btn.contains(e.target);
+
+    if (!clickedInside && nav.classList.contains('open')) {
+      nav.classList.remove('open');
+      btn.textContent = '☰';
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      nav.classList.remove('open');
+      btn.textContent = '☰';
+    }
+  });
+}
+
 (() => {
   const $  = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
@@ -504,15 +544,25 @@
   }
 
   /* ROUTER */
-  function router() {
-    updateNavAuth();                  // podmień link w nav wg sesji
+function router() {
+  initMobileMenu();
 
-    if (has('loginBtn'))   return initLogin();
-    if (has('productsList')) return initAdmin();
-    if (has('grid'))       return initHome();
+  updateNavAuth();
 
-    setYear();
+  if (has('loginBtn')) {
+    return initLogin();
   }
+
+  if (has('productsList')) {
+    return initAdmin();
+  }
+
+  if (has('grid')) {
+    return initHome();
+  }
+
+  setYear();
+}
 
   // Jeśli skrypt na końcu body – odpal od razu, inaczej poczekaj
   if (document.readyState === 'loading') {
