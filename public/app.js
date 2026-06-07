@@ -9,29 +9,48 @@
   const link = document.getElementById('adminLink');
   if (!link) return;
 
-  const isLogged = !!sessionStorage.getItem('wykoncz_token');
+  try {
+    const res = await fetch('/api/auth/me');
 
-  if (isLogged) {
-    link.href = 'logowanie/admin.html';
-    link.textContent = 'Panel';
+    if (res.ok) {
+      // użytkownik zalogowany
+      link.href = '/logowanie/admin.html';
+      link.textContent = 'Panel';
 
-    if (!document.getElementById('logoutBtn')) {
-      const out = document.createElement('a');
-      out.id = 'logoutBtn';
-      out.href = '#';
-      out.textContent = 'Wyloguj';
+      // dodaj przycisk wylogowania tylko raz
+      if (!document.getElementById('logoutBtn')) {
+        const out = document.createElement('a');
+        out.id = 'logoutBtn';
+        out.href = '#';
+        out.textContent = 'Wyloguj';
 
-      link.parentElement.appendChild(out);
+        link.parentElement.appendChild(out);
 
-      out.addEventListener('click', (e) => {
-        e.preventDefault();
-        sessionStorage.removeItem('wykoncz_token');
-        window.location.href = 'index.html';
-      });
+        out.addEventListener('click', async (e) => {
+          e.preventDefault();
+
+          await fetch('/api/auth/logout', {
+            method: 'POST'
+          });
+
+          window.location.href = '/index.html';
+        });
+      }
+
+    } else {
+      // użytkownik niezalogowany
+      link.href = '/logowanie/login.html';
+      link.textContent = 'Panel';
+
+      document.getElementById('logoutBtn')?.remove();
     }
-  } else {
-    link.href = 'logowanie/login.html';
+
+  } catch (err) {
+    console.error(err);
+
+    link.href = '/logowanie/login.html';
     link.textContent = 'Panel';
+
     document.getElementById('logoutBtn')?.remove();
   }
 }

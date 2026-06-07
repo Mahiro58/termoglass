@@ -1,163 +1,112 @@
 (() => {
-  /* Helpers */
-  const $  = (sel, root = document) => root.querySelector(sel);
+  const $ = (sel, root = document) => root.querySelector(sel);
   const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
-
-  const LS_KEYS = {
-    user: 'wykoncz_user',
-    products: 'wykoncz_products',
-    categories: 'wykoncz_categories',
-  };
-
-  const TOKEN_KEY = 'wykoncz_token';
-
   const has = (id) => !!document.getElementById(id);
 
-  const toDataURL = (file) =>
-    new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-
-  const safeJSON = (k, fallback) => {
-    try { return JSON.parse(localStorage.getItem(k) || '') ?? fallback; }
-    catch { return fallback; }
-  };
-
-  /* Dane (get/set) */
-  const getCats  = () => safeJSON(LS_KEYS.categories, []);
-  const setCats  = (arr) => localStorage.setItem(LS_KEYS.categories, JSON.stringify(arr));
-  const getProds = () => safeJSON(LS_KEYS.products, []);
-  const setProds = (arr) => localStorage.setItem(LS_KEYS.products, JSON.stringify(arr));
-
-  /* Inicjały / domyślne */
-  function ensureDefaults() {
-    if (!localStorage.getItem(LS_KEYS.user)) {
-      const defaultUser = { email: 'admin@local', password: 'admin123', createdAt: Date.now() };
-      localStorage.setItem(LS_KEYS.user, JSON.stringify(defaultUser));
-    }
-    if (!localStorage.getItem(LS_KEYS.categories)) {
-      setCats(['narzędzia ręczne','elektronarzędzia','farby & wykończenia','podłogi & płytki','oświetlenie','akcesoria montażowe']);
-    }
-    if (!localStorage.getItem(LS_KEYS.products)) {
-      setProds([]);
-    }
-  }
-
-  /* Auth */
-  function requireAuthOrRedirect() {
-    if (!sessionStorage.getItem(TOKEN_KEY)) {
-      window.location.href = 'login.html';
-    }
-  }
+  let currentSort = 'created-desc';
+  let cachedCategories = [];
+  let cachedProducts = [];
+  let cachedBanners = [];
+  let editingBannerId = null;
 
   function setFooterYear() {
     const el = $('#year');
     if (el) el.textContent = new Date().getFullYear();
   }
 
-  /*     LOGIN PAGE     */
+  async function api(url, options = {}) {
+    const res = await fetch(url, options);
+
+    if (res.status === 401) {
+      window.location.href = '/logowanie/login.html';
+      return null;
+    }
+
+    if (!res.ok) {
+      let msg = 'Wystąpił błąd.';
+      try {
+        const data = await res.json();
+        msg = data.error || msg;
+      } catch {}
+      throw new Error(msg);
+    }
+
+    try {
+      return await res.json();
+    } catch {
+      return {};
+    }
+  }
+
+  async function requireAuthOrRedirect() {
+    const res = await fetch('/api/auth/me');
+
+    if (res.status === 401) {
+      window.location.href = '/logowanie/login.html';
+      return false;
+    }
+
+    return true;
+  }
+
   function initLoginPage() {
-    ensureDefaults();
     setFooterYear();
 
     const emailEl = $('#email');
-    const passEl  = $('#password');
+    const passEl = $('#password');
     const loginBtn = $('#loginBtn');
-    const seedLink = $('#seedData');
 
-    if (loginBtn) {
-      loginBtn.addEventListener('click', () => {
-        const email = (emailEl?.value || '').trim();
-        const pass  = passEl?.value || '';
-        const saved = safeJSON(LS_KEYS.user, {});
+    async function doLogin() {
+      const email = (emailEl?.value || '').trim();
+      const password = passEl?.value || '';
 
-        if (email === saved.email && pass === saved.password) {
-          sessionStorage.setItem(TOKEN_KEY, JSON.stringify({ email, at: Date.now() }));
-          window.location.href = 'admin.html';
-        } else {
-          alert('Błędny e-mail lub hasło.');
-        }
-      });
-    }
+      if (!email || !password) return alert('Podaj e-mail i hasło.');
 
-    if (seedLink) {
-      seedLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        // Kategorie
-        const cats = ['narzędzia ręczne','elektronarzędzia','farby & wykończenia','podłogi & płytki','oświetlenie','akcesoria montażowe'];
-        setCats(cats);
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
 
-        // Kilka przykładowych produktów (bez zdjęć)
-        const sample = [
-          { id: crypto.randomUUID(), name: 'Młotek stolarski 16 oz', category: 'narzędzia ręczne', price: 49.9, showPrice: true, rating: 4.6, desc: 'Trzonek z włókna szklanego.', image: '', createdAt: Date.now() - 3000 },
-          { id: crypto.randomUUID(), name: 'Wkrętarka 18V Pro', category: 'elektronarzędzia', price: 399, showPrice: true, rating: 4.8, desc: '2 biegi, 45 Nm.', image: '', createdAt: Date.now() - 2000 },
-          { id: crypto.randomUUID(), name: 'Farba lateksowa Biała 10L', category: 'farby & wykończenia', price: 129.99, showPrice: true, rating: 4.5, desc: 'Wysoka odporność na zmywanie.', image: '', createdAt: Date.now() - 1000 },
-        ];
-        setProds(sample);
-
-        alert('Dodano przykładowe kategorie i produkty.');
-      });
-    }
-  }
-
-  /* ADMIN PAGE */
-  let currentSort = 'created-desc';
-
-  function migrateCreatedAt() {
-    const arr = getProds();
-    let changed = false;
-    let t = Date.now();
-    for (let i = 0; i < arr.length; i++) {
-      if (!arr[i].createdAt) {
-        arr[i].createdAt = t - i * 1000;
-        changed = true;
+        if (res.ok) window.location.href = '/logowanie/admin.html';
+        else alert('Błędny e-mail lub hasło.');
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się zalogować.');
       }
     }
-    if (changed) setProds(arr);
+
+    loginBtn?.addEventListener('click', doLogin);
+
+    ['#email', '#password'].forEach(sel => {
+      $(sel)?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') doLogin();
+      });
+    });
   }
 
-  function productCard(p) {
-    const price = (p.showPrice && (p.price || p.price === 0))
-      ? `<span class="tag">Cena: ${Number(p.price).toFixed(2)} zł</span>`
-      : `<span class="tag">Cena ukryta</span>`;
+  async function logout() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    window.location.href = '/index.html';
+  }
 
-    const img = p.image
-      ? `<img class="prod-img" src="${p.image}" alt="${p.name}">`
-      : `<div class="prod-img" style="display:grid;place-items:center;color:var(--muted)">Brak zdjęcia</div>`;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'prod-card';
-    wrap.innerHTML = `
-      <div class="prod-head">
-        <h4>${p.name}</h4>
-        <button class="btn" data-action="delete" data-id="${p.id}">Usuń</button>
-      </div>
-      ${img}
-      <div class="prod-meta">
-        <span class="tag">${p.category || '—'}</span>
-        ${price}
-        <label class="tag" style="cursor:pointer">
-          <input type="checkbox" data-action="togglePrice" data-id="${p.id}" ${p.showPrice ? 'checked' : ''}> pokazuj cenę
-        </label>
-      </div>
-      <p style="margin:.5rem 0 0; color:#d6dee6">${p.desc || ''}</p>
-    `;
-    return wrap;
+  async function fetchCategories() {
+    cachedCategories = await api('/api/categories') || [];
   }
 
   function renderCategoriesUI() {
     const list = $('#catList');
     if (!list) return;
+
     list.innerHTML = '';
-    getCats().forEach(cat => {
+
+    cachedCategories.forEach(cat => {
       const row = document.createElement('div');
       row.className = 'kat-item';
       row.innerHTML = `
-        <span>${cat}</span>
-        <button class="btn btn-del" data-cat="${cat}">Usuń</button>
+        <span>${cat.name}</span>
+        <button class="btn btn-del" data-cat-id="${cat.id}">Usuń</button>
       `;
       list.appendChild(row);
     });
@@ -166,237 +115,490 @@
   function populateCategorySelect() {
     const sel = $('#pCategory');
     if (!sel) return;
+
     sel.innerHTML = '';
-    getCats().forEach(cat => {
+
+    cachedCategories.forEach(cat => {
       const opt = document.createElement('option');
-      opt.value = cat;
-      opt.textContent = cat;
+      opt.value = cat.id;
+      opt.textContent = cat.name;
       sel.appendChild(opt);
     });
   }
 
+  async function reloadCategories() {
+    await fetchCategories();
+    renderCategoriesUI();
+    populateCategorySelect();
+  }
+
+  async function fetchProducts() {
+    cachedProducts = await api('/api/products') || [];
+  }
+
+  function productCard(p) {
+    const price = Number(p.show_price)
+      ? `<span class="tag">Cena: ${Number(p.price || 0).toFixed(2)} zł</span>`
+      : `<span class="tag">Cena ukryta</span>`;
+
+    const img = p.image_url
+      ? `<img class="prod-img" src="${p.image_url}" alt="${p.name}">`
+      : `<div class="prod-img" style="display:grid;place-items:center;color:var(--muted)">Brak zdjęcia</div>`;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'prod-card';
+
+    wrap.innerHTML = `
+      <div class="prod-head">
+        <h4>${p.name}</h4>
+        <button class="btn" data-action="delete" data-id="${p.id}">Usuń</button>
+      </div>
+
+      ${img}
+
+      <div class="prod-meta">
+        <span class="tag">${p.category || '—'}</span>
+        ${price}
+        <label class="tag" style="cursor:pointer">
+          <input 
+            type="checkbox" 
+            data-action="togglePrice" 
+            data-id="${p.id}" 
+            ${Number(p.show_price) ? 'checked' : ''}
+          >
+          pokazuj cenę
+        </label>
+      </div>
+
+      <p style="margin:.5rem 0 0; color:#d6dee6">${p.description || ''}</p>
+    `;
+
+    return wrap;
+  }
+
   function renderProducts(filter = '') {
-    const box  = $('#productsList');
+    const box = $('#productsList');
     if (!box) return;
 
     box.innerHTML = '';
+
     const term = (filter || '').trim().toLowerCase();
 
-    let list = getProds().filter(p =>
+    let list = cachedProducts.filter(p =>
       !term ||
       (p.name || '').toLowerCase().includes(term) ||
-      (p.category || '').toLowerCase().includes(term)
+      (p.category || '').toLowerCase().includes(term) ||
+      (p.description || '').toLowerCase().includes(term)
     );
 
-    const safeName  = (p) => (p.name || '').toLowerCase();
-    const safeCat   = (p) => (p.category || '').toLowerCase();
-    const safePrice = (p) => isNaN(Number(p.price)) ? Number.POSITIVE_INFINITY : Number(p.price);
-    const safeTime  = (p) => Number(p.createdAt || 0);
+    const safeName = p => (p.name || '').toLowerCase();
+    const safeCat = p => (p.category || '').toLowerCase();
+    const safePrice = p => isNaN(Number(p.price)) ? Number.POSITIVE_INFINITY : Number(p.price);
+    const safeTime = p => Number(p.created_at || 0);
 
     switch (currentSort) {
-      case 'created-asc':  list.sort((a,b) => safeTime(a) - safeTime(b)); break;
-      case 'created-desc': list.sort((a,b) => safeTime(b) - safeTime(a)); break;
-      case 'name-asc':     list.sort((a,b) => safeName(a).localeCompare(safeName(b), 'pl', {sensitivity:'base'})); break;
-      case 'name-desc':    list.sort((a,b) => safeName(b).localeCompare(safeName(a), 'pl', {sensitivity:'base'})); break;
-      case 'price-asc':    list.sort((a,b) => safePrice(a) - safePrice(b)); break;
-      case 'price-desc':   list.sort((a,b) => safePrice(b) - safePrice(a)); break;
-      case 'category-asc': list.sort((a,b) => safeCat(a).localeCompare(safeCat(b), 'pl', {sensitivity:'base'})); break;
+      case 'created-asc':
+        list.sort((a, b) => safeTime(a) - safeTime(b));
+        break;
+      case 'created-desc':
+        list.sort((a, b) => safeTime(b) - safeTime(a));
+        break;
+      case 'name-asc':
+        list.sort((a, b) => safeName(a).localeCompare(safeName(b), 'pl'));
+        break;
+      case 'name-desc':
+        list.sort((a, b) => safeName(b).localeCompare(safeName(a), 'pl'));
+        break;
+      case 'price-asc':
+        list.sort((a, b) => safePrice(a) - safePrice(b));
+        break;
+      case 'price-desc':
+        list.sort((a, b) => safePrice(b) - safePrice(a));
+        break;
+      case 'category-asc':
+        list.sort((a, b) => safeCat(a).localeCompare(safeCat(b), 'pl'));
+        break;
     }
 
     list.forEach(p => box.appendChild(productCard(p)));
   }
 
-  function initAdminPage() {
-    requireAuthOrRedirect();
-    ensureDefaults();
-    migrateCreatedAt();
-    setFooterYear();
+  async function reloadProducts() {
+    await fetchProducts();
+    renderProducts($('#searchProducts')?.value || '');
+  }
 
-    // Logout 
-    const logoutBtn = $('#logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', (e) => {
-        sessionStorage.removeItem(TOKEN_KEY);
-      });
+  async function fetchBanners() {
+    cachedBanners = await api('/api/admin/banners') || [];
+  }
+
+  function bannerCard(b) {
+    const wrap = document.createElement('div');
+    wrap.className = 'prod-card';
+
+    wrap.innerHTML = `
+      <div class="prod-head">
+        <h4>Baner #${b.id}</h4>
+        <div class="inline">
+          <button class="btn" data-action="editBanner" data-id="${b.id}">Edytuj</button>
+          <button class="btn" data-action="deleteBanner" data-id="${b.id}">Usuń</button>
+        </div>
+      </div>
+
+      <img class="prod-img" src="${b.image_url}" alt="Baner">
+
+      <div class="prod-meta">
+        <span class="tag">Kolejność: ${b.sort_order ?? 0}</span>
+        <span class="tag">${Number(b.active) ? 'Aktywny' : 'Nieaktywny'}</span>
+      </div>
+
+      <p style="margin:.5rem 0 0; color:#d6dee6">
+        Link: ${b.link_url || 'brak'}
+      </p>
+    `;
+
+    return wrap;
+  }
+
+  function renderBanners() {
+    const box = $('#bannersList');
+    if (!box) return;
+
+    box.innerHTML = '';
+
+    if (!cachedBanners.length) {
+      box.innerHTML = '<p>Brak banerów.</p>';
+      return;
     }
 
-    // Sekcje
-    renderCategoriesUI();
-    populateCategorySelect();
-    renderProducts();
+    cachedBanners.forEach(b => box.appendChild(bannerCard(b)));
+  }
 
-    // Nawigacja lewego panelu (sekcje)
+  async function reloadBanners() {
+    await fetchBanners();
+    renderBanners();
+  }
+
+  function resetBannerForm() {
+    editingBannerId = null;
+
+    if ($('#bImage')) $('#bImage').value = '';
+    if ($('#bLink')) $('#bLink').value = '';
+    if ($('#bSort')) $('#bSort').value = '0';
+    if ($('#bActive')) $('#bActive').checked = true;
+
+    if ($('#addBannerBtn')) $('#addBannerBtn').style.display = 'inline-block';
+    if ($('#saveBannerBtn')) $('#saveBannerBtn').style.display = 'none';
+    if ($('#cancelBannerEditBtn')) $('#cancelBannerEditBtn').style.display = 'none';
+  }
+
+  async function initAdminPage() {
+    const ok = await requireAuthOrRedirect();
+    if (!ok) return;
+
+    setFooterYear();
+
+    $('#logoutBtn')?.addEventListener('click', e => {
+      e.preventDefault();
+      logout();
+    });
+
     $$('.admin-nav .stack a').forEach(a => {
-      a.addEventListener('click', (e) => {
+      a.addEventListener('click', e => {
         e.preventDefault();
+
         const id = a.getAttribute('href');
+
         $$('.panel').forEach(p => p.style.display = 'none');
         $$('.admin-nav .stack a').forEach(x => x.classList.remove('active'));
+
         a.classList.add('active');
+
         const panel = document.querySelector(id);
         if (panel) panel.style.display = 'grid';
+
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     });
-    // pokaż pierwszą sekcję
+
     const panels = $$('.panel');
     panels.forEach((p, i) => p.style.display = i === 0 ? 'grid' : 'none');
 
-    /* Produkty: dodawanie */
-    const addBtn = $('#addProductBtn');
-    if (addBtn) {
-      addBtn.addEventListener('click', async () => {
-        const name = ($('#pName')?.value || '').trim();
-        const category = $('#pCategory')?.value || '';
-        const price = parseFloat($('#pPrice')?.value || '0');
-        const showPrice = $('#pShowPrice')?.checked ?? true;
-        const desc = ($('#pDesc')?.value || '').trim();
-        const file = $('#pImage')?.files?.[0];
+    await reloadCategories();
+    await reloadProducts();
 
-        if (!name) return alert('Podaj nazwę produktu.');
-        if (!category) return alert('Wybierz kategorię.');
+    if (has('bannersList')) {
+      await reloadBanners();
+    }
 
-        let imageData = '';
-        if (file) {
-          try { imageData = await toDataURL(file); }
-          catch (e) { console.error(e); alert('Nie udało się wczytać obrazu.'); }
-        }
+    $('#addProductBtn')?.addEventListener('click', async () => {
+      const name = ($('#pName')?.value || '').trim();
+      const categoryId = $('#pCategory')?.value || '';
+      const price = $('#pPrice')?.value || '0';
+      const showPrice = $('#pShowPrice')?.checked ? '1' : '0';
+      const description = ($('#pDesc')?.value || '').trim();
+      const file = $('#pImage')?.files?.[0];
 
-        const newProd = {
-          id: crypto.randomUUID(),
-          name,
-          category,
-          price: isNaN(price) ? 0 : price,
-          showPrice,
-          desc,
-          image: imageData,
-          createdAt: Date.now(),
-        };
+      if (!name) return alert('Podaj nazwę produktu.');
+      if (!categoryId) return alert('Wybierz kategorię.');
 
-        const arr = getProds();
-        arr.unshift(newProd);
-        setProds(arr);
+      const fd = new FormData();
+      fd.append('name', name);
+      fd.append('category_id', categoryId);
+      fd.append('price', price);
+      fd.append('show_price', showPrice);
+      fd.append('description', description);
 
-        // reset formu
-        if ($('#pName'))  $('#pName').value = '';
+      if (file) fd.append('image', file);
+
+      try {
+        await api('/api/products', {
+          method: 'POST',
+          body: fd
+        });
+
+        if ($('#pName')) $('#pName').value = '';
         if ($('#pPrice')) $('#pPrice').value = '';
-        if ($('#pDesc'))  $('#pDesc').value = '';
+        if ($('#pDesc')) $('#pDesc').value = '';
         if ($('#pImage')) $('#pImage').value = '';
         if ($('#pShowPrice')) $('#pShowPrice').checked = true;
 
-        renderProducts($('#searchProducts')?.value || '');
-      });
-    }
+        await reloadProducts();
+        alert('Dodano produkt.');
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się dodać produktu.');
+      }
+    });
 
-    /* Produkty: operacje na liście */
-    const listBox = $('#productsList');
-    if (listBox) {
-      listBox.addEventListener('click', (e) => {
-        const delBtn = e.target.closest('button[data-action="delete"]');
-        const tgl = e.target.closest('input[data-action="togglePrice"]');
+    $('#productsList')?.addEventListener('click', async e => {
+      const delBtn = e.target.closest('button[data-action="delete"]');
+      const tgl = e.target.closest('input[data-action="togglePrice"]');
 
-        if (delBtn) {
-          const id = delBtn.dataset.id;
-          if (confirm('Usunąć ten produkt?')) {
-            setProds(getProds().filter(p => p.id !== id));
-            renderProducts($('#searchProducts')?.value || '');
-          }
+      if (delBtn) {
+        const id = delBtn.dataset.id;
+
+        if (!confirm('Usunąć ten produkt?')) return;
+
+        try {
+          await api(`/api/products/${id}`, { method: 'DELETE' });
+          await reloadProducts();
+        } catch (err) {
+          console.error(err);
+          alert('Nie udało się usunąć produktu.');
         }
+      }
 
-        if (tgl) {
-          const id = tgl.dataset.id;
-          const arr = getProds().map(p => p.id === id ? { ...p, showPrice: tgl.checked } : p);
-          setProds(arr);
-          renderProducts($('#searchProducts')?.value || '');
+      if (tgl) {
+        const id = tgl.dataset.id;
+
+        try {
+          await api(`/api/products/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ show_price: tgl.checked ? 1 : 0 })
+          });
+
+          await reloadProducts();
+        } catch (err) {
+          console.error(err);
+          alert('Nie udało się zmienić widoczności ceny.');
         }
-      });
-    }
+      }
+    });
 
-    /* Produkty: wyszukiwarka + sortowanie */
-    const searchInput = $('#searchProducts');
-    if (searchInput) {
-      searchInput.addEventListener('input', (e) => {
-        renderProducts(e.target.value);
-      });
-    }
+    $('#searchProducts')?.addEventListener('input', e => {
+      renderProducts(e.target.value);
+    });
 
-    const sortSelect = $('#sortProducts');
-    if (sortSelect) {
-      sortSelect.addEventListener('change', (e) => {
-        currentSort = e.target.value;
-        renderProducts($('#searchProducts')?.value || '');
-      });
-    }
+    $('#sortProducts')?.addEventListener('change', e => {
+      currentSort = e.target.value;
+      renderProducts($('#searchProducts')?.value || '');
+    });
 
-    /* Kategorie: dodawanie/usuwanie */
-    const addCatBtn = $('#addCatBtn');
-    if (addCatBtn) {
-      addCatBtn.addEventListener('click', () => {
-        const name = ($('#catName')?.value || '').trim();
-        if (!name) return alert('Podaj nazwę kategorii.');
-        const cats = getCats();
-        if (cats.includes(name)) return alert('Taka kategoria już istnieje.');
-        cats.push(name);
-        setCats(cats);
+    $('#addCatBtn')?.addEventListener('click', async () => {
+      const name = ($('#catName')?.value || '').trim();
+
+      if (!name) return alert('Podaj nazwę kategorii.');
+
+      try {
+        await api('/api/categories', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+
         if ($('#catName')) $('#catName').value = '';
-        renderCategoriesUI();
-        populateCategorySelect();
-      });
-    }
 
-    const catList = $('#catList');
-    if (catList) {
-      catList.addEventListener('click', (e) => {
-        const btn = e.target.closest('button.btn-del');
-        if (!btn) return;
-        const name = btn.dataset.cat;
-        if (!confirm(`Usunąć kategorię „${name}”? Produkty pozostaną, ale ich kategoria nie zmieni się automatycznie.`)) return;
-        setCats(getCats().filter(c => c !== name));
-        renderCategoriesUI();
-        populateCategorySelect();
-      });
-    }
+        await reloadCategories();
+        alert('Dodano kategorię.');
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się dodać kategorii. Możliwe, że już istnieje.');
+      }
+    });
 
-    /* Ustawienia admina */
-    (function initAdminSettings() {
-      const u = safeJSON(LS_KEYS.user, {});
-      if ($('#admEmail')) $('#admEmail').value = u.email || '';
-    })();
+    $('#catList')?.addEventListener('click', async e => {
+      const btn = e.target.closest('button.btn-del');
+      if (!btn) return;
 
-    const saveAdminBtn = $('#saveAdmin');
-    if (saveAdminBtn) {
-      saveAdminBtn.addEventListener('click', () => {
-        const email = ($('#admEmail')?.value || '').trim();
-        const pass  = $('#admPass')?.value || '';
-        if (!email) return alert('Podaj e-mail administratora.');
+      const id = btn.dataset.catId;
 
-        const u = safeJSON(LS_KEYS.user, {});
-        u.email = email;
-        if (pass) u.password = pass;
-        localStorage.setItem(LS_KEYS.user, JSON.stringify(u));
+      if (!confirm('Usunąć kategorię? Produkty z tej kategorii mogą zostać bez kategorii.')) return;
+
+      try {
+        await api(`/api/categories/${id}`, { method: 'DELETE' });
+        await reloadCategories();
+        await reloadProducts();
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się usunąć kategorii.');
+      }
+    });
+
+    $('#addBannerBtn')?.addEventListener('click', async () => {
+      const file = $('#bImage')?.files?.[0];
+      const linkUrl = ($('#bLink')?.value || '').trim();
+      const sortOrder = $('#bSort')?.value || '0';
+      const active = $('#bActive')?.checked ? '1' : '0';
+
+      if (!file) return alert('Wybierz obraz banera.');
+
+      const fd = new FormData();
+      fd.append('image', file);
+      fd.append('link_url', linkUrl);
+      fd.append('sort_order', sortOrder);
+      fd.append('active', active);
+
+      try {
+        await api('/api/banners', {
+          method: 'POST',
+          body: fd
+        });
+
+        resetBannerForm();
+        await reloadBanners();
+        alert('Dodano baner.');
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się dodać banera.');
+      }
+    });
+
+    $('#bannersList')?.addEventListener('click', async e => {
+      const editBtn = e.target.closest('button[data-action="editBanner"]');
+      const deleteBtn = e.target.closest('button[data-action="deleteBanner"]');
+
+      if (editBtn) {
+        const id = Number(editBtn.dataset.id);
+        const banner = cachedBanners.find(b => Number(b.id) === id);
+        if (!banner) return;
+
+        editingBannerId = id;
+
+        if ($('#bLink')) $('#bLink').value = banner.link_url || '';
+        if ($('#bSort')) $('#bSort').value = banner.sort_order ?? 0;
+        if ($('#bActive')) $('#bActive').checked = Number(banner.active) === 1;
+        if ($('#bImage')) $('#bImage').value = '';
+
+        if ($('#addBannerBtn')) $('#addBannerBtn').style.display = 'none';
+        if ($('#saveBannerBtn')) $('#saveBannerBtn').style.display = 'inline-block';
+        if ($('#cancelBannerEditBtn')) $('#cancelBannerEditBtn').style.display = 'inline-block';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      if (deleteBtn) {
+        const id = deleteBtn.dataset.id;
+
+        if (!confirm('Usunąć ten baner?')) return;
+
+        try {
+          await api(`/api/banners/${id}`, { method: 'DELETE' });
+          await reloadBanners();
+        } catch (err) {
+          console.error(err);
+          alert('Nie udało się usunąć banera.');
+        }
+      }
+    });
+
+    $('#saveBannerBtn')?.addEventListener('click', async () => {
+      if (!editingBannerId) return;
+
+      const file = $('#bImage')?.files?.[0];
+      const linkUrl = ($('#bLink')?.value || '').trim();
+      const sortOrder = $('#bSort')?.value || '0';
+      const active = $('#bActive')?.checked ? '1' : '0';
+
+      const fd = new FormData();
+      fd.append('link_url', linkUrl);
+      fd.append('sort_order', sortOrder);
+      fd.append('active', active);
+
+      if (file) fd.append('image', file);
+
+      try {
+        await api(`/api/banners/${editingBannerId}`, {
+          method: 'PATCH',
+          body: fd
+        });
+
+        resetBannerForm();
+        await reloadBanners();
+        alert('Zapisano baner.');
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się zapisać banera.');
+      }
+    });
+
+    $('#cancelBannerEditBtn')?.addEventListener('click', resetBannerForm);
+
+    try {
+      const meRes = await fetch('/api/auth/me');
+      if (meRes.ok) {
+        const me = await meRes.json();
+        if ($('#admEmail')) $('#admEmail').value = me.email || '';
+      }
+    } catch {}
+
+    $('#saveAdmin')?.addEventListener('click', async () => {
+      const email = ($('#admEmail')?.value || '').trim();
+      const password = $('#admPass')?.value || '';
+
+      if (!email) return alert('Podaj e-mail administratora.');
+
+      try {
+        await api('/api/admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
 
         if ($('#admPass')) $('#admPass').value = '';
         alert('Zapisano ustawienia administratora.');
-      });
-    }
+      } catch (err) {
+        console.error(err);
+        alert('Nie udało się zapisać ustawień.');
+      }
+    });
   }
 
-  /* Router inicjalizujący skrypt zależnie od strony */
   function initRouter() {
-    // login.html ma #loginBtn
     if (has('loginBtn')) {
       initLoginPage();
       return;
     }
-    // admin.html ma #productsList
+
     if (has('productsList')) {
       initAdminPage();
       return;
     }
-    // Strony publiczne: tylko rok w stopce, jeśli jest
+
     setFooterYear();
   }
 
-  // Start
   document.addEventListener('DOMContentLoaded', initRouter);
 })();

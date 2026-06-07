@@ -3,118 +3,304 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Panel administratora — Wykończ.to</title>
+  <title>Panel administratora — TERMOGLASS</title>
+
   <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
+
 <header class="site-header">
-  <a class="logo" href="/public/index.html">TERMOGLASS</a>
+  <a class="logo" href="/index.html">TERMOGLASS</a>
+
   <nav class="main-nav" aria-label="Główna nawigacja">
-    <a href="/public/index.html">Strona Główna</a>
-    <a href="/public/o-nas/o-nas.html">O Nas</a>
-    <a href="/public/kontakt/kontakt.html">Kontakt</a>
-    <a href="login.html" id="logoutBtn" title="Wyloguj">Wyloguj</a>
+    <a href="/index.html">Strona główna</a>
+    <a href="/o-nas/o-nas.html">O Nas</a>
+    <a href="/kontakt/kontakt.html">Kontakt</a>
+    <a href="#" id="logoutBtn" title="Wyloguj">Wyloguj</a>
   </nav>
 </header>
 
 <main class="container admin-layout">
-  <!-- Lewy pasek -->
+
+  <!-- LEWE MENU -->
   <aside class="admin-nav">
     <h2>Administrator</h2>
+
     <div class="stack">
       <a href="#produkty" class="active">Produkty</a>
       <a href="#kategorie">Kategorie</a>
+      <a href="#banery">Banery</a>
       <a href="#ustawienia">Ustawienia</a>
     </div>
   </aside>
 
-  <!-- Prawa strona -->
+  <!-- PRAWA STRONA -->
   <section class="admin-content">
-    <!-- Produkty -->
+
+    <!-- PRODUKTY -->
     <div id="produkty" class="panel">
-        <div class="section-toolbar">
-            <h3>Produkty</h3>
-            <div class="inline">
-                <select id="sortProducts" title="Sortuj">
-                <option value="created-desc">Najnowsze</option>
-                <option value="created-asc">Najstarsze</option>
-                <option value="name-asc">Nazwa A–Z</option>
-                <option value="name-desc">Nazwa Z–A</option>
-                <option value="price-asc">Cena: rosnąco</option>
-                <option value="price-desc">Cena: malejąco</option>
-                <option value="category-asc">Kategoria A–Z</option>
-                </select>
-            <input class="search" id="searchProducts" type="search" placeholder="Szukaj w produktach…">
+
+      <div class="section-toolbar">
+        <h3>Produkty</h3>
+
+        <div class="inline">
+          <select id="sortProducts" title="Sortuj">
+            <option value="created-desc">Najnowsze</option>
+            <option value="created-asc">Najstarsze</option>
+            <option value="name-asc">Nazwa A–Z</option>
+            <option value="name-desc">Nazwa Z–A</option>
+            <option value="price-asc">Cena: rosnąco</option>
+            <option value="price-desc">Cena: malejąco</option>
+            <option value="category-asc">Kategoria A–Z</option>
+          </select>
+
+          <input
+            class="search"
+            id="searchProducts"
+            type="search"
+            placeholder="Szukaj w produktach…"
+          >
         </div>
-    </div>
+      </div>
 
-
-      <!-- Formularz dodawania produktu -->
+      <!-- DODAJ PRODUKT -->
       <div class="form-grid">
+
         <div class="form-row">
-          <label>Nazwa
-            <input type="text" id="pName" placeholder="np. Wkrętarka 18V Pro" required>
+          <label>
+            Nazwa produktu
+
+            <input
+              type="text"
+              id="pName"
+              placeholder="np. Wkrętarka 18V Pro"
+              required
+            >
           </label>
         </div>
+
         <div class="form-row inline">
-          <label style="flex:1">Kategoria
+
+          <label style="flex:1">
+            Kategoria
             <select id="pCategory"></select>
           </label>
-          <label style="flex:1">Cena (PLN)
-            <input type="number" id="pPrice" placeholder="0.00" min="0" step="0.01">
+
+          <label style="flex:1">
+            Cena (PLN)
+
+            <input
+              type="number"
+              id="pPrice"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+            >
           </label>
-          <label class="inline"><input type="checkbox" id="pShowPrice" checked> Pokazuj cenę</label>
+
+          <label class="inline">
+            <input type="checkbox" id="pShowPrice" checked>
+            Pokazuj cenę
+          </label>
+
         </div>
+
         <div class="form-row">
-          <label>Opis
-            <textarea id="pDesc" rows="3" placeholder="Krótki opis produktu…"></textarea>
+          <label>
+            Opis produktu
+
+            <textarea
+              id="pDesc"
+              rows="3"
+              placeholder="Krótki opis produktu…"
+            ></textarea>
           </label>
         </div>
+
         <div class="form-row">
-          <label>Zdjęcie (jpg/png/webp)
-            <input type="file" id="pImage" accept="image/*">
+          <label>
+            Zdjęcie produktu
+
+            <input
+              type="file"
+              id="pImage"
+              accept="image/*"
+            >
           </label>
         </div>
+
         <div class="form-row">
-          <button class="btn" id="addProductBtn">Dodaj produkt</button>
+          <button class="btn" id="addProductBtn" type="button">
+            Dodaj produkt
+          </button>
         </div>
       </div>
 
       <hr style="border-color:#27303a; opacity:.5">
-      <!-- Lista produktów -->
+
+      <!-- LISTA PRODUKTÓW -->
       <div class="products" id="productsList"></div>
+
     </div>
 
-    <!-- Kategorie -->
+    <!-- KATEGORIE -->
     <div id="kategorie" class="panel">
+
       <h3>Kategorie</h3>
+
       <div class="form-grid">
         <div class="inline">
-          <input type="text" id="catName" placeholder="np. elektronarzędzia">
-          <button class="btn" id="addCatBtn">Dodaj kategorię</button>
+          <input
+            type="text"
+            id="catName"
+            placeholder="np. elektronarzędzia"
+          >
+
+          <button class="btn" id="addCatBtn" type="button">
+            Dodaj kategorię
+          </button>
         </div>
       </div>
+
       <div class="kat-list" id="catList"></div>
+
     </div>
 
-    <!-- Ustawienia -->
-    <div id="ustawienia" class="panel">
-      <h3>Ustawienia administratora</h3>
+    <!-- BANERY -->
+    <div id="banery" class="panel">
+
+      <h3>Banery strony głównej</h3>
+
       <div class="form-grid">
+
         <div class="form-row">
-          <label>E-mail administratora
-            <input type="email" id="admEmail" placeholder="admin@local">
+          <label>
+            Zdjęcie banera
+
+            <input
+              id="bImage"
+              type="file"
+              accept="image/*"
+            >
           </label>
         </div>
+
         <div class="form-row">
-          <label>Nowe hasło
-            <input type="password" id="admPass" placeholder="pozostaw puste by nie zmieniać">
+          <label>
+            Link po kliknięciu
+
+            <input
+              id="bLink"
+              type="text"
+              placeholder="/kontakt/kontakt.html"
+            >
           </label>
         </div>
-        <div><button class="btn" id="saveAdmin">Zapisz</button></div>
+
+        <div class="form-row inline">
+
+          <label style="flex:1">
+            Kolejność
+
+            <input
+              id="bSort"
+              type="number"
+              value="0"
+            >
+          </label>
+
+          <label class="inline">
+            <input
+              id="bActive"
+              type="checkbox"
+              checked
+            >
+
+            Aktywny
+          </label>
+
+        </div>
+
+        <div class="form-row inline">
+          <button
+            class="btn"
+            id="addBannerBtn"
+            type="button"
+          >
+            Dodaj baner
+          </button>
+
+          <button
+            class="btn"
+            id="saveBannerBtn"
+            type="button"
+            style="display:none"
+          >
+            Zapisz zmiany
+          </button>
+
+          <button
+            class="btn"
+            id="cancelBannerEditBtn"
+            type="button"
+            style="display:none"
+          >
+            Anuluj edycję
+          </button>
+        </div>
       </div>
+
+      <!-- LISTA BANERÓW -->
+      <div id="bannersList"></div>
+
     </div>
+
+    <!-- USTAWIENIA -->
+    <div id="ustawienia" class="panel">
+
+      <h3>Ustawienia administratora</h3>
+
+      <div class="form-grid">
+
+        <div class="form-row">
+          <label>
+            E-mail administratora
+
+            <input
+              type="email"
+              id="admEmail"
+              placeholder="admin@local"
+            >
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label>
+            Nowe hasło
+
+            <input
+              type="password"
+              id="admPass"
+              placeholder="pozostaw puste by nie zmieniać"
+            >
+          </label>
+        </div>
+
+        <div>
+          <button
+            class="btn"
+            id="saveAdmin"
+            type="button"
+          >
+            Zapisz
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
   </section>
 </main>
 
@@ -122,6 +308,7 @@
   <p>© <span id="year"></span> TERMOGLASS</p>
 </footer>
 
-<script src="app.js"></script>
+<script src="/logowanie/app.js"></script>
+
 </body>
 </html>
